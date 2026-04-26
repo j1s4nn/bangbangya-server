@@ -1,0 +1,15 @@
+{
+    "users": {
+        "demo_user": {
+            "userId": "demo_user",
+            "nickName": "演示用户",
+            "avatarUrl": "",
+            "memberLevel": 1,
+            "joinDate": 1774403595958,
+            "memberExpire": null,
+            "publishCount": 3,
+            "acceptCount": 5,
+            "rating": 4.8
+        }
+    }
+}

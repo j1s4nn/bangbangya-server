@@ -1,0 +1,29 @@
+[
+  {
+    "timestamp": "2026-03-20T12:37:23.392Z",
+    "format": "qcc",
+    "filename": "test.xlsx",
+    "totalProcessed": 1238,
+    "newCount": 0,
+    "updateCount": 1238,
+    "totalInDb": 1238
+  },
+  {
+    "timestamp": "2026-03-20T12:05:03.242Z",
+    "format": "qcc",
+    "filename": "test.xlsx",
+    "totalProcessed": 1238,
+    "newCount": 1238,
+    "updateCount": 0,
+    "totalInDb": 1238
+  },
+  {
+    "timestamp": "2026-03-20T12:04:22.302Z",
+    "format": "riskbird",
+    "filename": "test.xlsx",
+    "totalProcessed": 0,
+    "newCount": 0,
+    "updateCount": 0,
+    "totalInDb": 0
+  }
+]

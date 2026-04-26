@@ -1,0 +1,99 @@
+{
+    "wallets": {
+        "demo_user": {
+            "userId": "demo_user",
+            "points": 945,
+            "totalEarned": 1517,
+            "totalWithdrawn": 350,
+            "memberLevel": 1,
+            "transactions": [
+                {
+                    "id": "tx_1777131185059",
+                    "type": "recharge",
+                    "amount": 11,
+                    "desc": "充值 10 元，获得 10 积分（含赠送 1 积分）",
+                    "payMethod": "wechat",
+                    "createdAt": 1777131185059
+                },
+                {
+                    "id": "tx_1777104633098",
+                    "type": "recharge",
+                    "amount": 34,
+                    "desc": "充值 30 元，获得 30 积分（含赠送 4 积分）",
+                    "payMethod": "wechat",
+                    "createdAt": 1777104633098
+                },
+                {
+                    "id": "tx_1777093863797",
+                    "type": "recharge",
+                    "amount": 550,
+                    "desc": "充值 500 元，获得 500 积分（含赠送 50 积分）",
+                    "payMethod": "wechat",
+                    "createdAt": 1777093863797
+                },
+                {
+                    "id": "tx_1777083702911",
+                    "type": "withdraw",
+                    "amount": -50,
+                    "fee": 0,
+                    "actual": 50,
+                    "desc": "提现 50 积分，手续费 0，实际到账 50",
+                    "receiveMethod": "alipay",
+                    "status": "pending",
+                    "createdAt": 1777083702911
+                },
+                {
+                    "id": "tx_1777082460803",
+                    "type": "recharge",
+                    "amount": 30,
+                    "desc": "充值 30 元，获得 30 积分",
+                    "payMethod": "wechat",
+                    "createdAt": 1777082460803
+                },
+                {
+                    "id": "tx_1777081821740",
+                    "type": "recharge",
+                    "amount": 50,
+                    "desc": "充值 50 元，获得 50 积分",
+                    "payMethod": "wechat",
+                    "createdAt": 1777081821740
+                },
+                {
+                    "id": "tx001",
+                    "type": "recharge",
+                    "amount": 100,
+                    "desc": "充值100积分",
+                    "createdAt": 1776131595957
+                },
+                {
+                    "id": "tx002",
+                    "type": "earn",
+                    "amount": 50,
+                    "desc": "完成任务获得积分",
+                    "createdAt": 1776390795957
+                },
+                {
+                    "id": "tx003",
+                    "type": "publish",
+                    "amount": -30,
+                    "desc": "发布任务扣除积分",
+                    "createdAt": 1776563595957
+                },
+                {
+                    "id": "tx004",
+                    "type": "withdraw",
+                    "amount": -300,
+                    "desc": "积分提现",
+                    "createdAt": 1776736395957
+                },
+                {
+                    "id": "tx005",
+                    "type": "bonus",
+                    "amount": 200,
+                    "desc": "会员赠送积分",
+                    "createdAt": 1776909195957
+                }
+            ]
+        }
+    }
+}

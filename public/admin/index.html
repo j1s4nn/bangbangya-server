@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>帮帮鸭 管理后台</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;color:#333;min-height:100vh}
+  .sidebar{position:fixed;left:0;top:0;width:220px;height:100vh;background:#001529;color:#fff;z-index:100}
+  .logo{padding:20px 24px;font-size:20px;font-weight:700;border-bottom:1px solid #003a70;display:flex;align-items:center;gap:10px}
+  .logo span{font-size:28px}
+  .nav{padding:8px 0}
+  .nav-item{padding:12px 24px;cursor:pointer;font-size:14px;color:rgba(255,255,255,.65);display:flex;align-items:center;gap:10px;transition:all .2s}
+  .nav-item:hover,.nav-item.active{background:rgba(255,255,255,.08);color:#fff}
+  .nav-item.active{border-right:3px solid #1677ff;color:#4096ff}
+  .nav-icon{font-size:16px;width:20px;text-align:center}
+  .main{margin-left:220px;min-height:100vh}
+  .topbar{background:#fff;padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e8e8e8;position:sticky;top:0;z-index:99}
+  .topbar h2{font-size:16px;font-weight:600}
+  .topbar .status{display:flex;align-items:center;gap:8px;font-size:13px;color:#52c41a}
+  .status-dot{width:8px;height:8px;border-radius:50%;background:#52c41a;animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+  .content{padding:24px}
+  .section{display:none}
+  .section.active{display:block}
+  .stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+  .stat-card{background:#fff;border-radius:8px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+  .stat-label{font-size:13px;color:#888;margin-bottom:8px}
+  .stat-num{font-size:30px;font-weight:700;line-height:1}
+  .stat-card.blue .stat-num{color:#1677ff}
+  .stat-card.green .stat-num{color:#52c41a}
+  .stat-card.orange .stat-num{color:#fa8c16}
+  .stat-card.red .stat-num{color:#ff4d4f}
+  .card{background:#fff;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.08);margin-bottom:20px}
+  .card-head{padding:16px 20px;border-bottom:1px solid #f0f0f0;font-weight:600;display:flex;justify-content:space-between;align-items:center}
+  .card-body{padding:20px}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th{background:#fafafa;padding:10px 12px;text-align:left;font-weight:600;font-size:13px;color:#888;border-bottom:1px solid #f0f0f0}
+  td{padding:12px 12px;border-bottom:1px solid #f9f9f9;vertical-align:middle}
+  tr:hover td{background:#fafafa}
+  .badge{display:inline-block;padding:2px 8px;border-radius:100px;font-size:12px;font-weight:600}
+  .badge-green{background:#f6ffed;color:#52c41a;border:1px solid #b7eb8f}
+  .badge-blue{background:#e6f4ff;color:#1677ff;border:1px solid #91caff}
+  .badge-orange{background:#fff7e6;color:#fa8c16;border:1px solid #ffd591}
+  .badge-red{background:#fff2f0;color:#ff4d4f;border:1px solid #ffccc7}
+  .badge-grey{background:#fafafa;color:#888;border:1px solid #e8e8e8}
+  .btn{padding:6px 14px;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:500;transition:all .2s}
+  .btn-primary{background:#1677ff;color:#fff}
+  .btn-primary:hover{background:#0958d9}
+  .btn-danger{background:#fff2f0;color:#ff4d4f;border:1px solid #ffccc7}
+  .btn-danger:hover{background:#ff4d4f;color:#fff}
+  .btn-sm{padding:4px 10px;font-size:12px}
+  .btn-success{background:#f6ffed;color:#52c41a;border:1px solid #b7eb8f}
+  .toolbar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+  .search-input{padding:7px 12px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;width:220px;outline:none}
+  .search-input:focus{border-color:#1677ff}
+  select{padding:7px 12px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;outline:none;cursor:pointer}
+  .loading{text-align:center;padding:40px;color:#888}
+  .empty{text-align:center;padding:40px;color:#bbb}
+  .empty-icon{font-size:48px;margin-bottom:12px}
+  .refresh-btn{padding:7px 16px;background:#1677ff;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px}
+  .refresh-btn:hover{background:#0958d9}
+  .alert{padding:12px 16px;border-radius:6px;margin-bottom:20px;font-size:14px;display:none}
+  .alert-error{background:#fff2f0;color:#ff4d4f;border:1px solid #ffccc7}
+  .alert-success{background:#f6ffed;color:#52c41a;border:1px solid #b7eb8f}
+  .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:center;justify-content:center}
+  .modal-bg.open{display:flex}
+  .modal{background:#fff;border-radius:10px;padding:24px;min-width:420px;max-width:90vw}
+  .modal h3{font-size:16px;font-weight:700;margin-bottom:20px}
+  .form-row{margin-bottom:16px}
+  .form-label{font-size:13px;color:#888;margin-bottom:6px}
+  .form-input{width:100%;padding:8px 12px;border:1px solid #d9d9d9;border-radius:6px;font-size:14px;outline:none}
+  .form-input:focus{border-color:#1677ff}
+  .modal-btns{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
+  @media(max-width:768px){.sidebar{width:60px}.logo .logo-text,.nav-item .nav-label{display:none}.main{margin-left:60px}.stat-row{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+  <div class="logo"><span>🦆</span><span class="logo-text">帮帮鸭管理</span></div>
+  <nav class="nav">
+    <div class="nav-item active" onclick="showSection('dashboard')"><span class="nav-icon">📊</span><span class="nav-label">数据概览</span></div>
+    <div class="nav-item" onclick="showSection('tasks')"><span class="nav-icon">📋</span><span class="nav-label">任务管理</span></div>
+    <div class="nav-item" onclick="showSection('companies')"><span class="nav-icon">🏢</span><span class="nav-label">企业数据</span></div>
+    <div class="nav-item" onclick="showSection('wallet')"><span class="nav-icon">💰</span><span class="nav-label">钱包管理</span></div>
+    <div class="nav-item" onclick="showSection('members')"><span class="nav-icon">👑</span><span class="nav-label">会员管理</span></div>
+  </nav>
+</div>
+
+<!-- Main -->
+<div class="main">
+  <div class="topbar">
+    <h2 id="page-title">数据概览</h2>
+    <div class="status"><div class="status-dot"></div><span id="server-status">连接中...</span></div>
+  </div>
+  <div class="content">
+
+    <!-- Dashboard -->
+    <div class="section active" id="section-dashboard">
+      <div class="alert alert-error" id="dash-error"></div>
+      <div class="stat-row" id="stat-row">
+        <div class="stat-card blue"><div class="stat-label">任务总数</div><div class="stat-num" id="s-tasks">--</div></div>
+        <div class="stat-card green"><div class="stat-label">进行中任务</div><div class="stat-num" id="s-open">--</div></div>
+        <div class="stat-card orange"><div class="stat-label">总积分流通</div><div class="stat-num" id="s-points">--</div></div>
+        <div class="stat-card red"><div class="stat-label">注册用户</div><div class="stat-num" id="s-users">--</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div class="card">
+          <div class="card-head">任务状态分布 <button class="refresh-btn" onclick="loadDashboard()">刷新</button></div>
+          <div class="card-body" id="task-dist"></div>
+        </div>
+        <div class="card">
+          <div class="card-head">会员等级分布</div>
+          <div class="card-body" id="member-dist"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tasks -->
+    <div class="section" id="section-tasks">
+      <div class="alert" id="task-alert"></div>
+      <div class="card">
+        <div class="card-head">
+          任务列表
+          <button class="refresh-btn" onclick="loadTasks()">刷新</button>
+        </div>
+        <div class="card-body">
+          <div class="toolbar">
+            <input class="search-input" id="task-search" placeholder="搜索任务标题..." oninput="filterTasks()">
+            <select id="task-status-filter" onchange="loadTasks()">
+              <option value="">全部状态</option>
+              <option value="open">招募中</option>
+              <option value="assigned">进行中</option>
+              <option value="completed">已完成</option>
+              <option value="cancelled">已取消</option>
+            </select>
+          </div>
+          <div id="task-table"><div class="loading">加载中...</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Companies -->
+    <div class="section" id="section-companies">
+      <div class="card">
+        <div class="card-head">
+          企业数据库
+          <button class="refresh-btn" onclick="loadCompanies()">刷新</button>
+        </div>
+        <div class="card-body">
+          <div class="toolbar">
+            <input class="search-input" id="co-search" placeholder="搜索企业名称..." onkeydown="if(event.key==='Enter')loadCompanies()">
+            <button class="btn btn-primary" onclick="loadCompanies()">搜索</button>
+          </div>
+          <div id="company-table"><div class="loading">加载中...</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Wallet -->
+    <div class="section" id="section-wallet">
+      <div class="stat-row" style="grid-template-columns:repeat(3,1fr)">
+        <div class="stat-card blue"><div class="stat-label">平台总积分</div><div class="stat-num" id="w-total">--</div></div>
+        <div class="stat-card green"><div class="stat-label">累计充值积分</div><div class="stat-num" id="w-recharged">--</div></div>
+        <div class="stat-card orange"><div class="stat-label">累计提现积分</div><div class="stat-num" id="w-withdrawn">--</div></div>
+      </div>
+      <div class="card">
+        <div class="card-head">用户钱包详情 <button class="refresh-btn" onclick="loadWalletStats()">刷新</button></div>
+        <div class="card-body">
+          <div class="toolbar">
+            <input class="search-input" id="wallet-uid" placeholder="输入用户ID查询" value="demo_user">
+            <button class="btn btn-primary" onclick="loadUserWallet()">查询</button>
+            <button class="btn btn-success" onclick="openRechargeModal()">手动充值</button>
+          </div>
+          <div id="wallet-detail"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Members -->
+    <div class="section" id="section-members">
+      <div class="card">
+        <div class="card-head">
+          用户会员列表
+          <button class="refresh-btn" onclick="loadMembers()">刷新</button>
+        </div>
+        <div class="card-body">
+          <div id="member-table"><div class="loading">加载中...</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Recharge Modal -->
+<div class="modal-bg" id="recharge-modal">
+  <div class="modal">
+    <h3>💳 手动充值积分</h3>
+    <div class="form-row"><div class="form-label">用户ID</div><input class="form-input" id="m-userid" value="demo_user"></div>
+    <div class="form-row"><div class="form-label">充值积分数量</div><input class="form-input" id="m-amount" type="number" placeholder="例如: 100"></div>
+    <div class="form-row"><div class="form-label">备注</div><input class="form-input" id="m-note" placeholder="管理员手动充值"></div>
+    <div class="modal-btns">
+      <button class="btn" onclick="closeModal('recharge-modal')">取消</button>
+      <button class="btn btn-primary" onclick="doRecharge()">确认充值</button>
+    </div>
+  </div>
+</div>
+
+<!-- Level Modal -->
+<div class="modal-bg" id="level-modal">
+  <div class="modal">
+    <h3>👑 修改会员等级</h3>
+    <div class="form-row"><div class="form-label">用户ID</div><input class="form-input" id="l-userid" readonly></div>
+    <div class="form-row">
+      <div class="form-label">新等级</div>
+      <select class="form-input" id="l-level">
+        <option value="0">Lv0 游客</option>
+        <option value="1">Lv1 注册会员 (免费)</option>
+        <option value="2">Lv2 VIP会员 (¥29/月)</option>
+        <option value="3">Lv3 高级VIP (¥59/月)</option>
+        <option value="4">Lv4 企业会员 (¥199/月)</option>
+        <option value="5">Lv5 钻石会员 (¥499/月)</option>
+      </select>
+    </div>
+    <div class="form-row"><div class="form-label">开通时长 (月)</div><input class="form-input" id="l-months" type="number" value="1" min="1"></div>
+    <div class="modal-btns">
+      <button class="btn" onclick="closeModal('level-modal')">取消</button>
+      <button class="btn btn-primary" onclick="doUpgrade()">确认修改</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = ''  // same origin
+
+// ── Helpers ────────────────────────────────────────────────────────────────
+async function req(method, path, body) {
+  const opts = { method, headers: { 'Content-Type': 'application/json' } }
+  if (body) opts.body = JSON.stringify(body)
+  const res = await fetch(API + path, opts)
+  const data = await res.json()
+  if (data.code !== 200 && data.code !== 201) throw new Error(data.message || 'API error')
+  return data
+}
+const get  = path => req('GET', path)
+const post = (path, b) => req('POST', path, b)
+const patch = (path, b) => req('PATCH', path, b)
+const del  = path => req('DELETE', path)
+
+function showAlert(id, msg, type='error') {
+  const el = document.getElementById(id)
+  if (!el) return
+  el.textContent = msg
+  el.className = 'alert alert-' + type
+  el.style.display = 'block'
+  setTimeout(() => el.style.display = 'none', 4000)
+}
+
+function badge(text, cls) { return `<span class="badge badge-${cls}">${text}</span>` }
+function statusBadge(s) {
+  const map = { open:'green', assigned:'blue', completed:'grey', cancelled:'red' }
+  const label = { open:'招募中', assigned:'进行中', completed:'已完成', cancelled:'已取消' }
+  return badge(label[s] || s, map[s] || 'grey')
+}
+
+// ── Sidebar Navigation ──────────────────────────────────────────────────────
+const titles = { dashboard:'数据概览', tasks:'任务管理', companies:'企业数据', wallet:'钱包管理', members:'会员管理' }
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'))
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'))
+  document.getElementById('section-' + id).classList.add('active')
+  event.currentTarget.classList.add('active')
+  document.getElementById('page-title').textContent = titles[id]
+  if (id === 'dashboard')  loadDashboard()
+  if (id === 'tasks')      loadTasks()
+  if (id === 'companies')  loadCompanies()
+  if (id === 'wallet')     loadWalletStats()
+  if (id === 'members')    loadMembers()
+}
+
+// ── Server Status ───────────────────────────────────────────────────────────
+async function checkStatus() {
+  try {
+    await get('/')
+    document.getElementById('server-status').textContent = '服务正常运行'
+  } catch(e) {
+    document.getElementById('server-status').textContent = '⚠️ 服务未连接'
+    document.querySelector('.status-dot').style.background = '#ff4d4f'
+  }
+}
+
+// ── Dashboard ───────────────────────────────────────────────────────────────
+async function loadDashboard() {
+  try {
+    const d = await get('/api/admin/dashboard')
+    const { tasks, wallet, members } = d.data
+    document.getElementById('s-tasks').textContent = tasks.total || 0
+    document.getElementById('s-open').textContent  = tasks.open  || 0
+    document.getElementById('s-points').textContent = wallet.totalPoints || 0
+    document.getElementById('s-users').textContent = members.totalUsers || 0
+
+    // Task distribution
+    document.getElementById('task-dist').innerHTML = `
+      <table><tr><th>状态</th><th>数量</th><th>占比</th></tr>
+      <tr><td>${statusBadge('open')}</td><td>${tasks.open||0}</td><td>${pct(tasks.open, tasks.total)}</td></tr>
+      <tr><td>${statusBadge('assigned')}</td><td>${tasks.assigned||0}</td><td>${pct(tasks.assigned, tasks.total)}</td></tr>
+      <tr><td>${statusBadge('completed')}</td><td>${tasks.completed||0}</td><td>${pct(tasks.completed, tasks.total)}</td></tr>
+      <tr><td>${statusBadge('cancelled')}</td><td>${tasks.cancelled||0}</td><td>${pct(tasks.cancelled, tasks.total)}</td></tr>
+      </table>`
+
+    // Member distribution
+    const byLevel = members.byLevel || {}
+    let rows = Object.entries(byLevel).map(([name, count]) =>
+      `<tr><td>${name}</td><td>${count}</td><td>${pct(count, members.totalUsers)}</td></tr>`).join('')
+    document.getElementById('member-dist').innerHTML =
+      `<table><tr><th>等级</th><th>人数</th><th>占比</th></tr>${rows}</table>`
+  } catch(e) {
+    document.getElementById('dash-error').textContent = '⚠️ 无法连接后端服务。请先运行 server/start.bat 启动服务！'
+    document.getElementById('dash-error').className = 'alert alert-error'
+    document.getElementById('dash-error').style.display = 'block'
+  }
+}
+function pct(n, total) { return total ? Math.round((n||0)/total*100) + '%' : '0%' }
+
+// ── Tasks ───────────────────────────────────────────────────────────────────
+let allTasks = []
+async function loadTasks() {
+  document.getElementById('task-table').innerHTML = '<div class="loading">加载中...</div>'
+  try {
+    const status = document.getElementById('task-status-filter').value
+    const url = '/api/tasks?page=1&size=100' + (status ? '&status=' + status : '')
+    const d = await get(url)
+    allTasks = d.data || []
+    renderTasks(allTasks)
+  } catch(e) {
+    document.getElementById('task-table').innerHTML = '<div class="empty"><div class="empty-icon">⚠️</div>加载失败: ' + e.message + '</div>'
+  }
+}
+function filterTasks() {
+  const kw = document.getElementById('task-search').value.toLowerCase()
+  renderTasks(allTasks.filter(t => !kw || t.title.toLowerCase().includes(kw)))
+}
+function renderTasks(list) {
+  if (!list.length) { document.getElementById('task-table').innerHTML = '<div class="empty"><div class="empty-icon">📋</div>暂无任务数据</div>'; return }
+  const rows = list.map(t => `<tr>
+    <td><b>${escHtml(t.title)}</b><br><small style="color:#888">${escHtml(t.address||'')}</small></td>
+    <td>${statusBadge(t.status)}</td>
+    <td><b style="color:#fa8c16">¥${t.reward||0}</b></td>
+    <td>${t.applyCount||0} 人</td>
+    <td>${escHtml(t.publisherName||'匿名')}</td>
+    <td>${escHtml(t.publishTime||'')}</td>
+    <td>
+      ${t.status==='open' ? `<button class="btn btn-sm btn-success" onclick="setTaskStatus('${t.id}','assigned')">开始</button> ` : ''}
+      ${t.status==='assigned' ? `<button class="btn btn-sm btn-primary" onclick="setTaskStatus('${t.id}','completed')">完成</button> ` : ''}
+      <button class="btn btn-sm btn-danger" onclick="deleteTask('${t.id}')">删除</button>
+    </td>
+  </tr>`).join('')
+  document.getElementById('task-table').innerHTML = `
+    <table><tr><th>任务标题</th><th>状态</th><th>赏金</th><th>报名</th><th>发布者</th><th>发布时间</th><th>操作</th></tr>${rows}</table>`
+}
+async function setTaskStatus(id, status) {
+  try {
+    await patch('/api/tasks/' + id + '/status', { status })
+    loadTasks()
+  } catch(e) { alert('操作失败: ' + e.message) }
+}
+async function deleteTask(id) {
+  if (!confirm('确认删除该任务？')) return
+  try { await del('/api/tasks/' + id); loadTasks() } catch(e) { alert('删除失败: ' + e.message) }
+}
+
+// ── Companies ────────────────────────────────────────────────────────────────
+async function loadCompanies() {
+  document.getElementById('company-table').innerHTML = '<div class="loading">加载中...</div>'
+  const kw = document.getElementById('co-search').value.trim()
+  try {
+    const url = kw ? '/api/company/search?keyword=' + encodeURIComponent(kw) + '&page=1&size=20'
+                   : '/api/company/list?page=1&size=20'
+    const d = await get(url)
+    const list = d.data || []
+    if (!list.length) { document.getElementById('company-table').innerHTML = '<div class="empty"><div class="empty-icon">🏢</div>暂无企业数据</div>'; return }
+    const rows = list.map(c => `<tr>
+      <td><b>${escHtml(c.name||'')}</b></td>
+      <td>${escHtml(c.legalPerson||'--')}</td>
+      <td>${escHtml(c.registeredCapital||'--')}</td>
+      <td>${escHtml(c.establishedDate||'--')}</td>
+      <td>${escHtml(c.industry||'--')}</td>
+      <td>${c.status==='在业'||c.status==='存续' ? badge(c.status,'green') : badge(c.status||'--','grey')}</td>
+      <td><button class="btn btn-sm btn-primary" onclick="location.href='/api/company/detail/${c.id}'">详情</button></td>
+    </tr>`).join('')
+    document.getElementById('company-table').innerHTML =
+      `<table><tr><th>企业名称</th><th>法人</th><th>注册资本</th><th>成立日期</th><th>行业</th><th>状态</th><th>操作</th></tr>${rows}</table>`
+  } catch(e) {
+    document.getElementById('company-table').innerHTML = '<div class="empty">加载失败: ' + e.message + '</div>'
+  }
+}
+
+// ── Wallet ───────────────────────────────────────────────────────────────────
+async function loadWalletStats() {
+  try {
+    const d = await get('/api/wallet/stats')
+    const w = d.data || {}
+    document.getElementById('w-total').textContent     = w.totalPoints || 0
+    document.getElementById('w-recharged').textContent = w.totalRechargeEver || 0
+    document.getElementById('w-withdrawn').textContent = w.totalWithdrawnEver || 0
+  } catch(e) {}
+  loadUserWallet()
+}
+async function loadUserWallet() {
+  const uid = document.getElementById('wallet-uid').value.trim() || 'demo_user'
+  try {
+    const [wi, ti] = await Promise.all([
+      get('/api/wallet?userId=' + uid),
+      get('/api/wallet/transactions?userId=' + uid + '&size=20')
+    ])
+    const w = wi.data || {}
+    const txs = ti.data || []
+    const txRows = txs.map(t => `<tr>
+      <td>${t.type==='recharge'?'💳 充值':t.type==='withdraw'?'🏦 提现':t.type==='earn'?'🎯 获得':'📝 消费'}</td>
+      <td style="color:${(t.amount||0)>0?'#52c41a':'#ff4d4f'}">${(t.amount||0)>0?'+':''}${t.amount||0}</td>
+      <td>${escHtml(t.desc||'')}</td>
+      <td>${t.createdAt ? new Date(t.createdAt).toLocaleString('zh-CN') : '--'}</td>
+    </tr>`).join('')
+    document.getElementById('wallet-detail').innerHTML = `
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px">
+        <div style="background:#f6ffed;border-radius:8px;padding:16px;text-align:center">
+          <div style="font-size:13px;color:#888;margin-bottom:6px">当前积分</div>
+          <div style="font-size:28px;font-weight:700;color:#52c41a">${w.points||0}</div>
+        </div>
+        <div style="background:#e6f4ff;border-radius:8px;padding:16px;text-align:center">
+          <div style="font-size:13px;color:#888;margin-bottom:6px">累计获得</div>
+          <div style="font-size:28px;font-weight:700;color:#1677ff">${w.totalEarned||0}</div>
+        </div>
+        <div style="background:#fff7e6;border-radius:8px;padding:16px;text-align:center">
+          <div style="font-size:13px;color:#888;margin-bottom:6px">累计提现</div>
+          <div style="font-size:28px;font-weight:700;color:#fa8c16">${w.totalWithdrawn||0}</div>
+        </div>
+      </div>
+      <b>交易记录</b>
+      <table style="margin-top:10px"><tr><th>类型</th><th>积分</th><th>描述</th><th>时间</th></tr>${txRows||'<tr><td colspan=4 style="text-align:center;color:#bbb">暂无记录</td></tr>'}</table>`
+  } catch(e) {
+    document.getElementById('wallet-detail').innerHTML = '<div class="empty">加载失败: ' + e.message + '</div>'
+  }
+}
+function openRechargeModal() {
+  document.getElementById('m-userid').value = document.getElementById('wallet-uid').value || 'demo_user'
+  document.getElementById('m-amount').value = ''
+  document.getElementById('recharge-modal').classList.add('open')
+}
+async function doRecharge() {
+  const userId = document.getElementById('m-userid').value.trim()
+  const amount = parseInt(document.getElementById('m-amount').value)
+  if (!userId || !amount || amount <= 0) { alert('请填写用户ID和有效积分数量'); return }
+  try {
+    await post('/api/wallet/recharge', { userId, amount, bonusPoints: 0, payMethod: 'admin' })
+    closeModal('recharge-modal')
+    loadUserWallet()
+    loadWalletStats()
+    showAlert('task-alert', '充值成功', 'success')
+  } catch(e) { alert('充值失败: ' + e.message) }
+}
+
+// ── Members ──────────────────────────────────────────────────────────────────
+async function loadMembers() {
+  document.getElementById('member-table').innerHTML = '<div class="loading">加载中...</div>'
+  try {
+    const d = await get('/api/users?page=1&size=50')
+    const list = d.data || []
+    if (!list.length) { document.getElementById('member-table').innerHTML = '<div class="empty"><div class="empty-icon">👥</div>暂无用户数据</div>'; return }
+    const levelNames = ['游客','注册会员','VIP会员','高级VIP','企业会员','钻石会员']
+    const levelCls   = ['grey','green','blue','orange','orange','red']
+    const rows = list.map(u => `<tr>
+      <td><b>${escHtml(u.userId)}</b></td>
+      <td>${escHtml(u.nickName||'--')}</td>
+      <td>${badge('Lv'+(u.memberLevel||0)+' '+(levelNames[u.memberLevel||0]||'--'), levelCls[u.memberLevel||0])}</td>
+      <td>${u.joinDate ? new Date(u.joinDate).toLocaleDateString('zh-CN') : '--'}</td>
+      <td>${u.memberExpire ? new Date(u.memberExpire).toLocaleDateString('zh-CN') : '永久/未设置'}</td>
+      <td>
+        <button class="btn btn-sm btn-primary" onclick="openLevelModal('${u.userId}',${u.memberLevel||1})">改等级</button>
+      </td>
+    </tr>`).join('')
+    document.getElementById('member-table').innerHTML =
+      `<table><tr><th>用户ID</th><th>昵称</th><th>会员等级</th><th>加入日期</th><th>到期日期</th><th>操作</th></tr>${rows}</table>`
+  } catch(e) {
+    document.getElementById('member-table').innerHTML = '<div class="empty">加载失败: ' + e.message + '</div>'
+  }
+}
+function openLevelModal(userId, currentLevel) {
+  document.getElementById('l-userid').value = userId
+  document.getElementById('l-level').value = currentLevel
+  document.getElementById('l-months').value = 1
+  document.getElementById('level-modal').classList.add('open')
+}
+async function doUpgrade() {
+  const userId = document.getElementById('l-userid').value
+  const level  = parseInt(document.getElementById('l-level').value)
+  const months = parseInt(document.getElementById('l-months').value) || 1
+  try {
+    await post('/api/users/' + userId + '/upgrade', { level, months })
+    closeModal('level-modal')
+    loadMembers()
+  } catch(e) { alert('修改失败: ' + e.message) }
+}
+
+// ── Util ─────────────────────────────────────────────────────────────────────
+function closeModal(id) { document.getElementById(id).classList.remove('open') }
+function escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') }
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+checkStatus()
+loadDashboard()
+setInterval(checkStatus, 10000)
+</script>
+</body>
+</html>
