@@ -1,15 +1,15 @@
-# bangbangya-server
+# bangbangya-server:
 
 Backend server for 帮帮鸭 (BangBangYa) business directory platform.
 
-## Tech Stack
+## Tech Stack:
 
 - **Runtime**: Node.js + Express
 - **Database**: MongoDB (company data, filtering, search)
 - **Import Pipeline**: Excel/CSV data processing
 - **Middleware**: CORS, body-parser, error handling
 
-## Quick Start
+## Quick Start:
 
 ```bash
 # Install dependencies
@@ -27,7 +27,7 @@ npm run dev
 
 Server runs on `http://localhost:3000` (or port specified in `.env`)
 
-## Project Structure
+## Project Structure:
 
 ```
 bangbangya-server/
@@ -40,14 +40,14 @@ bangbangya-server/
 └── index.js         # Entry point
 ```
 
-## API Endpoints
+## API Endpoints:
 
 - `GET /api/companies` - List companies with filtering
 - `GET /api/companies/:id` - Get company details
 - `POST /api/companies/search` - Search companies
 - `POST /api/import` - Import data from Excel/CSV
 
-## Data Import
+## Data Import:
 
 ```bash
 # Test import format detection
