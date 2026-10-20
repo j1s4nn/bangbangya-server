@@ -55,6 +55,7 @@ node detect-format.js path/to/file.xlsx
 
 # Run import
 node import.js path/to/file.xlsx
+
 ```
 
 ## License
